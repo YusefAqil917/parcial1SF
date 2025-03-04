@@ -36,11 +36,11 @@ sudo apt-get update
 sudo apt-get install bind9 dnsutils
 ```
 
-# Servidor maestro
+# Configuraciones en el Servidor maestro
 
-## Configuración zona directa
+## Configuración de zona directa 
 
-En el servidor **maestro**, y en el archivo `named.conf.local` ubicado en `/etc/bind`
+En el archivo `named.conf.local` que ubicado en `/etc/bind` incluimos el siguiente contenido: 
 
 ```bash
 // Zona directa (empresa.local)
@@ -58,7 +58,7 @@ zone "50.168.192.in-addr.arpa" {
 };
 ```
 
-En el archivo [`db.](http://db.maestro.com)empresa.local` ubicado en `/etc/bind`.
+Ahoa, en el archivo [`db.](http://db.maestro.com)empresa.local` ubicado en `/etc/bind`.
 
 ```bash
 $TTL 604800
@@ -80,7 +80,7 @@ server  IN  CNAME maestro
 
 ```
 
-En el archivo `db.192` 
+Para la configuracion de la resolución inversa en el archivo `db.192`  
 
 ```bash
 $TTL 604800
@@ -94,7 +94,7 @@ $TTL 604800
 ; Servidor de nombres
 @       IN  NS  maestro.empresa.local.
 
-; Registros PTR (Resolución Inversa)
+; Registros PTR (Para la resolución Inversa de la IP)
 3       IN  PTR  maestro.empresa.local.
 2       IN  PTR  esclavo.empresa.local.
 4       IN  PTR  cliente.empresa.local.
@@ -106,42 +106,35 @@ $TTL 604800
 
 `named-checkzone 50.168.192.in-addr.arpa /etc/bind/db.192`
 
-### Se desactiva el firewall
-
-Para consultas externas
+### Desactivamos el firewall para poder hacer las consultas externas
 
 `sudo ufw disable`
 
-# Servidor esclavo
+# Configuraciones hechas en el servidor esclavo
 
-En el servidor **esclavo**, y en el archivo `named.conf.local` ubicado en `/etc/bind`
+Para el servidor **esclavo**, necesitamos configurar las zonas en el archivo `named.conf.local` ubicado en `/etc/bind`
 
 ```bash
-// Zona directa (empresa.local)
+// Zona directa
 zone "empresa.local" {
     type slave;
     file "/var/cache/bind/db.empresa.local";
     masters { 192.168.50.3; };
 };
 
-// Zona inversa (192.168.50.x)
+// Zona inversa
 zone "50.168.192.in-addr.arpa" {
     type slave;
     file "/var/cache/bind/db.192";
     masters { 192.168.50.3; };
 };
 ```
+# Archivo resolv.conf
+En Esclavo se apunta el resolver hacia la dirección IP del maestro 192.168.50.3
 
-## Refrescar el caché del servidor esclavo
+# Comprobaciones
 
-```bash
-sudo rndc retransfer empresa.local
-sudo rndc retransfer 50.168.192.in-addr.arpa
-```
-
-# Pruebas
-
-Todas las pruebas se hacen desde el **cliente.** Con estas pruebas buscamos comprobar que si usamos como DNS el servidor **esclavo**, siempre se va a resolver el dominio gracias al cache que trae del servidor **maestro**.
+Todas las pruebas se realizan desde el cliente. El objetivo es verificar que, al utilizar el servidor esclavo como DNS, el dominio siempre se resuelva correctamente gracias al caché que obtiene del servidor maestro.
 
 ```bash
 nslookup maestro.empresa.local 192.168.50.2
@@ -158,12 +151,6 @@ nslookup 192.168.50.2 192.168.50.2
 nslookup 192.168.50.4 192.168.50.2
 ```
 
-## Configurar archivo resolv.conf
-
-En el Esclavo se apunta el resolver hacia la dirección IP del maestro 192.168.50.3
+# Archivo resolv.conf
 
 En el cliente se apunta el resolver hacia la dirección IP del Esclavo 192.168.50.2
-
-## Para parar el bind
-
-sudo systemctl stop bind9

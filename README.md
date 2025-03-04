@@ -1,5 +1,5 @@
-# parcial1ST
-# Parcial 1 - Primera parte
+# Parcial1ST
+
 
 # Vagrantfile
 

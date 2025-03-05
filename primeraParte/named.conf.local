@@ -1,0 +1,13 @@
+// Zona directa (empresa.local)
+zone "empresa.local" {
+    type master;
+    file "/etc/bind/db.empresa.local";
+    allow-transfer { 192.168.50.2; }; // Permite la transferencia al esclavo
+};
+
+// Zona inversa (192.168.50.x)
+zone "50.168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/db.192";
+    allow-transfer { 192.168.50.2; }; // Permite la transferencia al esclavo
+};

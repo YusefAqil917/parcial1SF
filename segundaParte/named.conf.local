@@ -1,0 +1,10 @@
+zone "aqil.com" {
+    type master;
+    file "/etc/bind/db.parcial.aqil.com";
+};
+
+/*Zona inversa*/
+zone "50.168.192.in-addr.arpa" {
+type master;
+file "/etc/bind/db.192";
+};

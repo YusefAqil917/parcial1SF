@@ -1,0 +1,15 @@
+$TTL 604800
+@       IN  SOA     maestro.empresa.local. root.empresa.local. (
+        2       ; Serial
+        604800  ; Refresh
+        86400   ; Retry
+        2419200 ; Expire
+        604800 ) ; Negative Cache TTL
+
+; Servidor de nombres
+@       IN  NS  maestro.empresa.local.
+
+; Registros PTR (Resolución Inversa)
+3       IN  PTR  maestro.empresa.local.
+2       IN  PTR  esclavo.empresa.local.
+4       IN  PTR  cliente.empresa.local.
